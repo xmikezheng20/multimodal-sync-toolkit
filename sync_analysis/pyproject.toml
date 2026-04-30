@@ -7,29 +7,29 @@ name = "multimodal-sync-analysis"
 version = "0.1.0"
 description = "Session validation and timebase mapping for synchronized multimodal recordings"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.12"
 dependencies = [
-  "numpy>=1.24",
-  "pandas>=2.0",
-  "pyyaml>=6.0",
+  "numpy>=1.26",
+  "pandas>=2.2",
+  "pyyaml>=6.0.1",
 ]
 
 [project.optional-dependencies]
 audio = [
-  "soundfile>=0.12",
+  "soundfile>=0.12.1",
 ]
 video = [
-  "opencv-python-headless>=4.8",
+  "opencv-python-headless>=4.9",
 ]
 notebooks = [
-  "jupyterlab",
-  "matplotlib",
+  "jupyterlab>=4.0",
+  "matplotlib>=3.8",
 ]
 all = [
-  "soundfile>=0.12",
-  "opencv-python-headless>=4.8",
-  "jupyterlab",
-  "matplotlib",
+  "soundfile>=0.12.1",
+  "opencv-python-headless>=4.9",
+  "jupyterlab>=4.0",
+  "matplotlib>=3.8",
 ]
 
 [tool.setuptools]
