@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "multimodal-sync-analysis"
+version = "0.1.0"
+description = "Session validation and timebase mapping for synchronized multimodal recordings"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "numpy>=1.24",
+  "pandas>=2.0",
+  "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+audio = [
+  "soundfile>=0.12",
+]
+video = [
+  "opencv-python-headless>=4.8",
+]
+notebooks = [
+  "jupyterlab",
+  "matplotlib",
+]
+all = [
+  "soundfile>=0.12",
+  "opencv-python-headless>=4.8",
+  "jupyterlab",
+  "matplotlib",
+]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]

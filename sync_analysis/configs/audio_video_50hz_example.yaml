@@ -1,0 +1,24 @@
+# Example analysis-side configuration.
+# This file describes what a recorded session is expected to contain.
+
+config:
+  experiment_code: audio_video_50hz
+  rig: example
+  sync_rate: 50
+  sync_tolerance: 0.01
+
+  audio:
+    audio_base_dir: original_audio
+    audio_file_sr: 250000
+    channels:
+      - channel_id: c1
+        channel_label: c1
+        contains_sync_signal: true
+        sync_channel_id: c1
+
+  video:
+    video_base_dir: original_video
+    video_file_sr: 50
+    channels:
+      - channel_id: cam0
+        channel_label: cam0
