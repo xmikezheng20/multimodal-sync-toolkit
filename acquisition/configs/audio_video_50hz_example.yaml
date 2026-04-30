@@ -4,14 +4,6 @@
 session:
   sync_rate_hz: 50
 
-arduino:
-  serial_port: COM3
-  # These are calibrated rig values, not values automatically derived from
-  # sync_rate_hz. Adjust them when camera timestamps show the pulse period is
-  # not the intended 1 / sync_rate_hz.
-  pulse_high_us: 9926
-  pulse_low_us: 9926
-
 video:
   frame_rate_hz: 50
   frame_width: 1616
