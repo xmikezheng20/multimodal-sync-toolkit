@@ -35,3 +35,6 @@ Thumbs.db
 
 # IDE settings files
 .vscode/
+
+# Bonsai editor state
+.bonsai/
