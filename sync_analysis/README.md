@@ -6,8 +6,8 @@ Install the full development environment from this folder:
 
 ```bash
 cd sync_analysis
-conda env create -f envs/analysis.yaml
-conda activate ~/.conda/envs/multimodal-sync-analysis
+conda env create --prefix $HOME/.conda/envs/multimodal-sync-analysis -f envs/analysis.yaml
+conda activate $HOME/.conda/envs/multimodal-sync-analysis
 ```
 
 Or install into an existing Python environment:

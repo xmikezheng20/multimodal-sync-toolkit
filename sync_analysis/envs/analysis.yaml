@@ -1,4 +1,3 @@
-prefix: ~/.conda/envs/multimodal-sync-analysis
 channels:
   - conda-forge
 dependencies:

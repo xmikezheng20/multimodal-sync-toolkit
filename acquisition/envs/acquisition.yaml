@@ -1,9 +1,8 @@
-prefix: ~/.conda/envs/multimodal-sync-acquisition
 channels:
-  - conda-forge
+  - defaults
 dependencies:
   - python=3.12
   - pip
-  - ffmpeg
+  - ffmpeg=4.2.2
   - numpy
   - pyyaml

@@ -9,6 +9,8 @@ Acquisition configuration should describe how the rig records data. It is separa
 Create the acquisition environment with:
 
 ```bash
-conda env create -f envs/acquisition.yaml
-conda activate ~/.conda/envs/multimodal-sync-acquisition
+conda env create --prefix $HOME/.conda/envs/multimodal-sync-acquisition -f acquisition/envs/acquisition.yaml
+conda activate $HOME/.conda/envs/multimodal-sync-acquisition
 ```
+
+The acquisition environment is pinned to a tested Windows/NVIDIA video encoding stack. In particular, the ffmpeg build, NVIDIA driver, and `h264_nvenc` encoder options need to work together. The current environment file uses Python 3.12 with ffmpeg 4.2.2 from the default conda channel, tested on Windows 11 with an NVIDIA RTX 3060 and NVIDIA driver 581.57. If video acquisition or encoding fails, consider testing a different NVIDIA driver, ffmpeg version, or encoder setting.
