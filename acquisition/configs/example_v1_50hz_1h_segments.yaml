@@ -1,0 +1,28 @@
+# Example acquisition-side configuration with hourly video segments.
+# This file describes rig behavior, not post-hoc analysis expectations.
+
+session:
+  sync_rate_hz: 50
+
+paths:
+  data_dir: E:/videos/test
+  bonsai_exe: C:/Users/xmike/AppData/Local/Bonsai/Bonsai.exe
+  # This v1 config expects a Bonsai workflow with one camera box.
+  bonsai_workflow: acquisition/bonsai/workflows/triggered_video_writer_v1.bonsai
+
+video:
+  frame_width: 1616
+  frame_height: 1240
+  input_pixel_format: gray
+  encoder: h264_nvenc
+  profile: high
+  preset: slow
+  segment_seconds: 3600
+  output_extension: mp4
+  pipe_wait_timeout_s: 300
+  cameras:
+    - name: cam0
+      serial_number: "22463269"
+      # Must match the ImageWriter path in the Bonsai workflow.
+      pipe_name: videopipe1
+      enabled: true
