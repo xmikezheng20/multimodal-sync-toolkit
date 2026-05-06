@@ -8,9 +8,12 @@ Install the full development environment from this folder:
 cd sync_analysis
 conda env create --prefix $HOME/.conda/envs/multimodal-sync-analysis -f envs/analysis.yaml
 conda activate $HOME/.conda/envs/multimodal-sync-analysis
+pip install -e ".[all]"
 ```
 
-Or install into an existing Python environment:
+The conda environment installs Python and the `ffmpeg` executable. Python package dependencies are installed by `pip` from `pyproject.toml`.
+
+To install into an existing Python environment:
 
 ```bash
 cd sync_analysis

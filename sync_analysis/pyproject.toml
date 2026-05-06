@@ -20,6 +20,7 @@ audio = [
 ]
 video = [
   "opencv-python-headless>=4.9",
+  "ffmpeg-python>=0.2.0",
 ]
 notebooks = [
   "jupyterlab>=4.0",
@@ -28,6 +29,7 @@ notebooks = [
 all = [
   "soundfile>=0.12.1",
   "opencv-python-headless>=4.9",
+  "ffmpeg-python>=0.2.0",
   "jupyterlab>=4.0",
   "matplotlib>=3.8",
 ]
