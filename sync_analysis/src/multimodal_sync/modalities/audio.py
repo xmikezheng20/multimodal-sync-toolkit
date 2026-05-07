@@ -8,14 +8,27 @@ from pathlib import Path
 from typing import Iterator
 
 import numpy as np
+import pandas as pd
 
 from ..config import resolve_sync_detection_config
+from ..continuous import SourceSignal
 from ..files import require_files
 from ..media_info import compute_audio_file_info, get_audio_num_channels
 from ..models import PulseChannelResult
+from ..segments import local_bounds_for_row, resolve_data_file, select_overlapping_files
 from ..sync_pulses import detect_sync_pulses_from_chunks
 
 logger = logging.getLogger(__name__)
+
+
+def _require_soundfile():
+    try:
+        import soundfile as sf
+    except ImportError as exc:
+        raise ImportError(
+            "Audio segment loading requires soundfile. Install the sync_analysis audio or all extra."
+        ) from exc
+    return sf
 
 
 def iter_audio_lsb_chunks(
@@ -162,4 +175,80 @@ def validate_audio_channel(
         output_subdir=("audio", channel_id),
         sync_data_filename="audio_sync_data.npy",
         file_info_filename="audio_file_info.csv",
+    )
+
+
+def load_audio_source_segment(
+    *,
+    file_info: pd.DataFrame,
+    audio_basepath: str | Path,
+    global_start_sample: int,
+    global_end_sample: int,
+    sample_rate_hz: float,
+    sample_channel: int | None = None,
+    modality: str = "audio",
+    channel_id: str = "audio",
+) -> SourceSignal:
+    """Load an audio segment in channel-wide source sample coordinates."""
+
+    if global_end_sample <= global_start_sample:
+        raise ValueError("global_end_sample must be greater than global_start_sample")
+    sf = _require_soundfile()
+
+    selected = select_overlapping_files(
+        file_info,
+        global_start=global_start_sample,
+        global_end=global_end_sample,
+        start_col="sample_start",
+        end_col="sample_end",
+    )
+
+    segments: list[np.ndarray] = []
+    indices: list[np.ndarray] = []
+    for _, row in selected.iterrows():
+        local_start, local_end, clipped_start, clipped_end = local_bounds_for_row(
+            row,
+            global_start=global_start_sample,
+            global_end=global_end_sample,
+            start_col="sample_start",
+            count_col="num_samples",
+        )
+        if local_end <= local_start:
+            continue
+        audio_path = resolve_data_file(audio_basepath, str(row["filename"]))
+        data, observed_sr = sf.read(
+            audio_path,
+            start=local_start,
+            frames=local_end - local_start,
+            always_2d=False,
+        )
+        if int(round(observed_sr)) != int(round(sample_rate_hz)):
+            raise ValueError(
+                f"Audio sample-rate mismatch for {audio_path}: expected "
+                f"{sample_rate_hz}, found {observed_sr}"
+            )
+        if sample_channel is not None and np.ndim(data) == 2:
+            data = data[:, int(sample_channel)]
+        elif sample_channel is not None and int(sample_channel) != 0:
+            raise ValueError(
+                f"sample_channel={sample_channel} requested for single-channel file {audio_path}"
+            )
+
+        segments.append(np.asarray(data))
+        indices.append(np.arange(clipped_start, clipped_end, dtype=np.int64))
+
+    if not segments:
+        values = np.empty((0,), dtype=float)
+        source_indices = np.empty((0,), dtype=np.int64)
+    else:
+        values = np.concatenate(segments, axis=0)
+        source_indices = np.concatenate(indices)
+
+    return SourceSignal(
+        values=values,
+        source_indices=source_indices,
+        source_rate_hz=float(sample_rate_hz),
+        modality=modality,
+        channel_id=channel_id,
+        source_index_name="sample",
     )

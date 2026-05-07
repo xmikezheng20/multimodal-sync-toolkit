@@ -1,4 +1,4 @@
-"""Tools for validating synchronized multimodal sessions."""
+"""Tools for validating synchronized multimodal sessions and mapping timebases."""
 
 __all__ = ["__version__"]
 
