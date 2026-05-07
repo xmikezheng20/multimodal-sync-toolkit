@@ -39,6 +39,16 @@ session_time_s
 
 These lookup tables are saved as `.npy` files and are the base for converting between local sample indices and session time.
 
+## Analysis Coordinate Systems
+
+The analysis implementation distinguishes three coordinate systems:
+
+- `file_local`: indices or times within one recorded file.
+- `source`: channel-wide sample or frame indices after a modality channel's files are ordered and concatenated.
+- `session`: the shared sync-defined clock.
+
+Modality-specific analysis can be done file by file in `file_local` coordinates. The validation file-info tables convert those results into `source` indices. The sync lookup tables then map `source` indices onto `session` time for cross-modality comparisons.
+
 ## Configuration Boundary
 
 Acquisition and analysis use separate configuration files.

@@ -342,6 +342,20 @@ def terminate_process(process: subprocess.Popen, name: str) -> None:
         process.kill()
 
 
+def wait_for_process_or_terminate(
+    process: subprocess.Popen,
+    name: str,
+    *,
+    timeout_s: float = 10,
+) -> None:
+    """Give a process time to finish cleanly before terminating it."""
+
+    try:
+        process.wait(timeout=timeout_s)
+    except subprocess.TimeoutExpired:
+        terminate_process(process, name)
+
+
 def main() -> int:
     args = parse_args()
     config_path = args.config.resolve()
@@ -410,9 +424,9 @@ def main() -> int:
     except KeyboardInterrupt:
         print("Interrupted by user.")
     finally:
-        for process in ffmpeg_processes:
-            terminate_process(process, "ffmpeg")
         terminate_process(bonsai_process, "Bonsai")
+        for process in ffmpeg_processes:
+            wait_for_process_or_terminate(process, "ffmpeg")
 
     return 0
 

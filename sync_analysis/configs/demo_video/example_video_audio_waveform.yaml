@@ -1,0 +1,49 @@
+# Example demo-video configuration for the short protocol test session.
+
+config:
+  video:
+    canvas_px: {w: 1000, h: 800}
+    output_fps: 50
+    playback_speed: 1.0
+    background_color: white
+
+    # rect_px uses bottom-left pixel coordinates on the output canvas.
+    components:
+      - id: cam0
+        type: video
+        channel_id: cam0
+        rect_px: {x: 50, y: 230, w: 900, h: 540}
+        processing:
+          colorspace: gray
+
+      - id: c1_high_waveform
+        type: audio_waveform
+        channel_id: c1_high
+        sample_channel: 0
+        rect_px: {x: 50, y: 55, w: 900, h: 125}
+        page_duration_s: 5.0
+        ylim: [-1.0, 1.0]
+        color: tab:blue
+        ylabel: Audio
+        max_plot_points: 2000
+
+  audio_track:
+    channel_id: c1_high
+    sample_channel: 0
+    output_sample_rate_hz: 48000
+    normalize: true
+
+  encoder:
+    video:
+      codec: libx264
+      pix_fmt: yuv420p
+      options:
+        preset: slow
+        crf: 20
+    audio:
+      codec: aac
+      options:
+        ar: 48000
+        ac: 1
+    mux_options:
+      movflags: +faststart
