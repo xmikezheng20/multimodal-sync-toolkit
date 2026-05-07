@@ -1,0 +1,46 @@
+# Example analysis-side configuration for the protocol demo session.
+# This file describes what a recorded session is expected to contain.
+
+config:
+  experiment_code: example_session_01_50hz
+  rig: example
+
+  session:
+    sync_rate_hz: 50
+
+  audio:
+    audio_base_dir: raw_audio
+    audio_file_sr: 250000
+    channels:
+      - channel_id: c1_high
+        channel_label: c1_high
+        contains_sync_signal: true
+        sample_channel: 0
+        sync_detection:
+          pulse_width_tolerance: 0.01
+          infer_missing_pulses: true
+          # 60 seconds at 250 kHz. Set to null to read each file at once.
+          chunk_size_samples: 15000000
+
+  video:
+    video_base_dir: raw_video
+    video_file_sr: 50
+    channels:
+      - channel_id: cam0
+        channel_label: cam0
+
+  intan:
+    intan_base_dir: raw_intan
+    intan_file_sr: 30000
+    # If null, the validator expects exactly one Intan recording folder.
+    recording_name: null
+    digital_channels:
+      - channel_id: 0
+        channel_label: sync
+        contains_sync_signal: true
+        sync_detection:
+          pulse_width_tolerance: 0.01
+          infer_missing_pulses: false
+          # Intan digital input files are usually manageable as one array.
+          chunk_size_samples: null
+

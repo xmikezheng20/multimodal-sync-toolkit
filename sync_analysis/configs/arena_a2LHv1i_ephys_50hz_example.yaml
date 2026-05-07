@@ -1,0 +1,51 @@
+# Example analysis-side configuration for an arena video/audio/Intan session.
+# This mirrors the older xmz_behavior_code arena_a2LHv1i_ephys validation config.
+
+config:
+  experiment_code: arena_a2LHv1i_ephys
+  rig: arena
+
+  session:
+    sync_rate_hz: 50
+
+  audio:
+    audio_base_dir: original_audio
+    audio_file_sr: 250000
+    channels:
+      - channel_id: c1_arena_low
+        channel_label: c1_arena_low
+        contains_sync_signal: true
+        sample_channel: 0
+        sync_detection:
+          pulse_width_tolerance: 0.01
+          infer_missing_pulses: true
+          chunk_size_samples: 15000000
+      - channel_id: c2_arena_high
+        channel_label: c2_arena_high
+        contains_sync_signal: true
+        sample_channel: 0
+        sync_detection:
+          pulse_width_tolerance: 0.01
+          infer_missing_pulses: true
+          chunk_size_samples: 15000000
+
+  video:
+    video_base_dir: original_video
+    video_file_sr: 50
+    channels:
+      - channel_id: cam0
+        channel_label: cam0
+
+  intan:
+    intan_base_dir: original_intan
+    intan_file_sr: 30000
+    recording_name: null
+    digital_channels:
+      - channel_id: 0
+        channel_label: sync
+        contains_sync_signal: true
+        sync_detection:
+          pulse_width_tolerance: 0.01
+          infer_missing_pulses: false
+          chunk_size_samples: null
+

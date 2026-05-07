@@ -4,20 +4,25 @@
 config:
   experiment_code: audio_video_50hz
   rig: example
-  sync_rate: 50
-  sync_tolerance: 0.01
+
+  session:
+    sync_rate_hz: 50
 
   audio:
-    audio_base_dir: original_audio
+    audio_base_dir: raw_audio
     audio_file_sr: 250000
     channels:
-      - channel_id: c1
-        channel_label: c1
+      - channel_id: c1_high
+        channel_label: c1_high
         contains_sync_signal: true
-        sync_channel_id: c1
+        sample_channel: 0
+        sync_detection:
+          pulse_width_tolerance: 0.01
+          infer_missing_pulses: true
+          chunk_size_samples: 15000000
 
   video:
-    video_base_dir: original_video
+    video_base_dir: raw_video
     video_file_sr: 50
     channels:
       - channel_id: cam0
