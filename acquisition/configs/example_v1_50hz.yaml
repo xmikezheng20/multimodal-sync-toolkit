@@ -14,9 +14,11 @@ video:
   frame_width: 1616
   frame_height: 1240
   input_pixel_format: gray
-  encoder: h264_nvenc
-  profile: high
-  preset: slow
+  # Output-side ffmpeg options.
+  ffmpeg_output_options:
+    c:v: h264_nvenc
+    profile:v: high
+    preset: slow
   segment_seconds: null
   output_extension: mp4
   pipe_wait_timeout_s: 60

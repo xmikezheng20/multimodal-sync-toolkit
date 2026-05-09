@@ -139,6 +139,8 @@ def validate_video_config(
     if pipe_wait_timeout_s <= 0:
         raise ValueError("video.pipe_wait_timeout_s must be positive")
 
+    build_ffmpeg_output_options(video)
+
     for index, camera in enumerate(cameras):
         label = camera_label(camera, index)
         require(camera, "name", label)
@@ -199,9 +201,67 @@ def start_ffmpeg_when_pipes_open(
     return processes
 
 
-def append_optional(command: list[str], flag: str, value: Any) -> None:
-    if value is not None:
-        command.extend([flag, str(value)])
+def build_ffmpeg_output_options(video: dict[str, Any]) -> list[str]:
+    """Build output-side ffmpeg options from the acquisition config."""
+
+    config_options = video.get("ffmpeg_output_options")
+    output_options: list[str] = []
+
+    def option_flag(name: Any, section: str) -> str:
+        flag = str(name)
+        if not flag:
+            raise ValueError(f"Empty ffmpeg option name in {section}")
+        return flag if flag.startswith("-") else f"-{flag}"
+
+    def add_named_option(name: Any, value: Any, section: str) -> None:
+        flag = option_flag(name, section)
+
+        if value is False:
+            return
+        if value is True or value is None:
+            output_options.append(flag)
+            return
+        if isinstance(value, (list, tuple)):
+            for item in value:
+                if item is not None:
+                    output_options.extend([flag, str(item)])
+            return
+
+        output_options.extend([flag, str(value)])
+
+    def add_options(options: Any, section: str) -> None:
+        if options is None:
+            return
+        if isinstance(options, dict):
+            for name, value in options.items():
+                add_named_option(name, value, section)
+            return
+        if isinstance(options, list):
+            for index, item in enumerate(options):
+                item_section = f"{section}[{index}]"
+                if isinstance(item, str):
+                    output_options.append(item)
+                elif isinstance(item, dict):
+                    add_options(item, item_section)
+                elif isinstance(item, (list, tuple)):
+                    if not item:
+                        continue
+                    flag = option_flag(item[0], item_section)
+                    output_options.append(flag)
+                    output_options.extend(str(value) for value in item[1:] if value is not None)
+                else:
+                    raise ValueError(
+                        f"{item_section} must be a string, mapping, or list/tuple; "
+                        f"got {type(item).__name__}"
+                    )
+            return
+
+        raise ValueError(
+            f"{section} must be a mapping or list; got {type(options).__name__}"
+        )
+
+    add_options(config_options, "video.ffmpeg_output_options")
+    return output_options
 
 
 def output_path_for_camera(
@@ -259,12 +319,7 @@ def build_ffmpeg_command(
         pipe_path,
     ]
 
-    append_optional(command, "-c:v", video.get("encoder"))
-    append_optional(command, "-profile:v", video.get("profile"))
-    append_optional(command, "-preset", video.get("preset"))
-    append_optional(command, "-b:v", video.get("bitrate"))
-    append_optional(command, "-crf", video.get("crf"))
-    append_optional(command, "-pix_fmt", video.get("output_pixel_format"))
+    command.extend(build_ffmpeg_output_options(video))
 
     command.append("-an")
 
@@ -312,9 +367,11 @@ def print_acquisition_summary(
         f"{require(video, 'frame_width', 'video')}x{require(video, 'frame_height', 'video')}"
     )
     print(f"  input_pixel_format: {require(video, 'input_pixel_format', 'video')}")
-    print(f"  encoder: {video.get('encoder')}")
-    print(f"  profile: {video.get('profile')}")
-    print(f"  preset: {video.get('preset')}")
+    output_options = build_ffmpeg_output_options(video)
+    if output_options:
+        print(f"  ffmpeg_output_options: {subprocess.list2cmdline(output_options)}")
+    else:
+        print("  ffmpeg_output_options: (ffmpeg defaults)")
     print(f"  segment_seconds: {video.get('segment_seconds')}")
     print(f"  output_extension: {video.get('output_extension', 'mp4')}")
     print(f"  pipe_wait_timeout_s: {video.get('pipe_wait_timeout_s', 60)}")
