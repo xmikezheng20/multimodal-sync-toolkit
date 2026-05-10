@@ -1,20 +1,19 @@
 # Example acquisition-side configuration for the legacy FFmpeg 4.2.2 stack.
-# This variant writes hourly video segments.
 # This file describes rig behavior, not post-hoc analysis expectations.
 
 session:
   sync_rate_hz: 50
 
 paths:
-  data_dir: E:/videos/test
-  bonsai_exe: C:/Users/xmike/AppData/Local/Bonsai/Bonsai.exe
+  data_dir: D:/videos/test
+  bonsai_exe: C:/Users/banerjeelab/AppData/Local/Bonsai/Bonsai.exe
   # This v1 config expects a Bonsai workflow with one camera box.
-  bonsai_workflow: acquisition/bonsai/workflows/triggered_video_writer_v1.bonsai
+  bonsai_workflow: acquisition/bonsai/workflows/triggered_video_writer_v2.bonsai
 
 video:
   frame_width: 1616
   frame_height: 1240
-  input_pixel_format: gray
+  input_pixel_format: bayer_rggb8
   # Output-side ffmpeg options used by the older acquisition workflow.
   ffmpeg_output_options:
     c:v: h264_nvenc
@@ -25,7 +24,12 @@ video:
   pipe_wait_timeout_s: 60
   cameras:
     - name: cam0
-      serial_number: "22463269"
+      serial_number: "20104308"
       # Must match the ImageWriter path in the Bonsai workflow.
       pipe_name: videopipe1
+      enabled: true
+    - name: cam1
+      serial_number: "20181897"
+      # Must match the ImageWriter path in the Bonsai workflow.
+      pipe_name: videopipe2
       enabled: true
