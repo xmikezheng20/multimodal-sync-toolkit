@@ -24,6 +24,76 @@ WINDOWS_PIPE_PREFIX = "\\\\.\\pipe\\"
 PIPE_POLL_INTERVAL_S = 0.1
 
 
+def path_environment_key(env: dict[str, str]) -> str:
+    for key in env:
+        if key.upper() == "PATH":
+            return key
+    return "PATH"
+
+
+def path_list_separator(path_value: str) -> str:
+    if os.name == "nt":
+        return ";"
+    if ";" in path_value and any(
+        len(entry) >= 2 and entry[1] == ":" for entry in path_value.split(";")
+    ):
+        return ";"
+    return os.pathsep
+
+
+def normalized_path_string(value: str) -> str:
+    return value.replace("\\", "/").rstrip("/").lower()
+
+
+def is_under_prefix(path_entry: str, prefix: str) -> bool:
+    entry = normalized_path_string(path_entry)
+    root = normalized_path_string(prefix)
+    return entry == root or entry.startswith(root + "/")
+
+
+def conda_prefixes(env: dict[str, str]) -> list[str]:
+    prefixes = []
+    for key, value in env.items():
+        if key.upper().startswith("CONDA_PREFIX") and value:
+            prefixes.append(value)
+    return sorted(set(prefixes), key=len, reverse=True)
+
+
+def build_bonsai_environment(env: dict[str, str] | None = None) -> dict[str, str]:
+    """Build a subprocess environment for Bonsai without active conda DLL paths."""
+
+    bonsai_env = dict(os.environ if env is None else env)
+    prefixes = conda_prefixes(bonsai_env)
+    if not prefixes:
+        return bonsai_env
+
+    path_key = path_environment_key(bonsai_env)
+    separator = path_list_separator(bonsai_env.get(path_key, ""))
+    path_entries = bonsai_env.get(path_key, "").split(separator)
+    clean_entries = [
+        entry
+        for entry in path_entries
+        if entry and not any(is_under_prefix(entry, prefix) for prefix in prefixes)
+    ]
+    bonsai_env[path_key] = separator.join(clean_entries)
+    return bonsai_env
+
+
+def count_removed_conda_path_entries(
+    original_env: dict[str, str],
+    clean_env: dict[str, str],
+) -> int:
+    path_key = path_environment_key(original_env)
+    separator = path_list_separator(original_env.get(path_key, ""))
+    original_entries = [
+        entry for entry in original_env.get(path_key, "").split(separator) if entry
+    ]
+    clean_entries = [
+        entry for entry in clean_env.get(path_key, "").split(separator) if entry
+    ]
+    return len(original_entries) - len(clean_entries)
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Run Bonsai-triggered video acquisition with ffmpeg encoding.",
@@ -175,28 +245,37 @@ def start_ffmpeg_when_pipes_open(
     started = [False for _ in cameras]
     processes: list[subprocess.Popen] = []
 
-    while not all(started):
-        if bonsai_process.poll() is not None:
-            raise RuntimeError("Bonsai exited before opening all video pipes.")
+    try:
+        while not all(started):
+            if bonsai_process.poll() is not None:
+                raise RuntimeError("Bonsai exited before opening all video pipes.")
 
-        for index, (camera, command) in enumerate(zip(cameras, ffmpeg_commands, strict=True)):
-            if started[index]:
-                continue
-            pipe_path = named_pipe_path(str(camera["pipe_name"]))
-            if pipe_exists(pipe_path):
-                print(f"Starting ffmpeg for {camera['name']} from pipe: {pipe_path}")
-                processes.append(subprocess.Popen(command))
-                started[index] = True
+            for index, (camera, command) in enumerate(
+                zip(cameras, ffmpeg_commands, strict=True)
+            ):
+                if started[index]:
+                    continue
+                pipe_path = named_pipe_path(str(camera["pipe_name"]))
+                if pipe_exists(pipe_path):
+                    print(f"Starting ffmpeg for {camera['name']} from pipe: {pipe_path}")
+                    processes.append(subprocess.Popen(command))
+                    started[index] = True
 
-        if time.monotonic() - start > timeout_s:
-            missing = [
-                f"{camera['name']} ({named_pipe_path(str(camera['pipe_name']))})"
-                for camera, is_started in zip(cameras, started, strict=True)
-                if not is_started
-            ]
-            raise TimeoutError("Timed out waiting for video pipes: " + ", ".join(missing))
+            if time.monotonic() - start > timeout_s:
+                missing = [
+                    f"{camera['name']} ({named_pipe_path(str(camera['pipe_name']))})"
+                    for camera, is_started in zip(cameras, started, strict=True)
+                    if not is_started
+                ]
+                raise TimeoutError(
+                    "Timed out waiting for video pipes: " + ", ".join(missing)
+                )
 
-        time.sleep(PIPE_POLL_INTERVAL_S)
+            time.sleep(PIPE_POLL_INTERVAL_S)
+    except Exception:
+        for process in processes:
+            terminate_process(process, "ffmpeg")
+        raise
 
     return processes
 
@@ -307,13 +386,11 @@ def build_ffmpeg_command(
         "-y",
         "-f",
         "rawvideo",
-        "-vcodec",
-        "rawvideo",
-        "-s",
-        f"{width}x{height}",
-        "-pix_fmt",
+        "-pixel_format",
         str(input_pixel_format),
-        "-r",
+        "-video_size",
+        f"{width}x{height}",
+        "-framerate",
         str(frame_rate_hz),
         "-i",
         pipe_path,
@@ -464,7 +541,15 @@ def main() -> int:
 
     data_dir.mkdir(parents=True, exist_ok=True)
 
-    bonsai_process = subprocess.Popen(bonsai_command)
+    bonsai_env = build_bonsai_environment()
+    removed_path_entries = count_removed_conda_path_entries(os.environ, bonsai_env)
+    if removed_path_entries:
+        print(
+            "Launching Bonsai with conda paths removed from PATH "
+            f"({removed_path_entries} entries)."
+        )
+
+    bonsai_process = subprocess.Popen(bonsai_command, env=bonsai_env)
     ffmpeg_processes: list[subprocess.Popen] = []
 
     try:

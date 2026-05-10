@@ -12,11 +12,13 @@ Output-side ffmpeg arguments are configured with `video.ffmpeg_output_options`. 
 video:
   ffmpeg_output_options:
     c:v: h264_nvenc
-    profile:v: high
-    preset: p5
+    preset: p4
     rc: vbr
-    cq: 23
+    cq: 30
     b:v: "0"
+    pix_fmt: yuv420p
 ```
 
 The wrapper also accepts an ordered list of options for cases where repeated flags or exact ordering are needed. These options are inserted after the raw-video input and before the output path.
+
+When launched from an activated conda environment, Bonsai inherits the shell environment. Conda DLL paths can interfere with Bonsai.Spinnaker and the native Spinnaker SDK, so `run_acquisition.py` removes active conda-prefix entries from `PATH` only for the Bonsai subprocess. ffmpeg still runs from the active conda environment.

@@ -14,11 +14,15 @@ video:
   frame_width: 1616
   frame_height: 1240
   input_pixel_format: gray
-  # Output-side ffmpeg options.
+  # Output-side ffmpeg options. These settings target newer FFmpeg/NVENC builds.
+  # Increase cq for smaller files; decrease cq for higher quality.
   ffmpeg_output_options:
     c:v: h264_nvenc
-    profile:v: high
-    preset: slow
+    preset: p4
+    rc: vbr
+    cq: 30
+    b:v: "0"
+    pix_fmt: yuv420p
   segment_seconds: null
   output_extension: mp4
   pipe_wait_timeout_s: 60

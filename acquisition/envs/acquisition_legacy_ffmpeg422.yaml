@@ -1,0 +1,9 @@
+# Legacy acquisition environment using FFmpeg 4.2.2 from the defaults channel.
+channels:
+  - defaults
+dependencies:
+  - python=3.12
+  - pip
+  - ffmpeg=4.2.2
+  - numpy
+  - pyyaml

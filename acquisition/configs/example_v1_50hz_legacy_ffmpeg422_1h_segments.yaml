@@ -1,4 +1,5 @@
-# Example acquisition-side configuration with hourly video segments.
+# Example acquisition-side configuration for the legacy FFmpeg 4.2.2 stack.
+# This variant writes hourly video segments.
 # This file describes rig behavior, not post-hoc analysis expectations.
 
 session:
@@ -14,15 +15,11 @@ video:
   frame_width: 1616
   frame_height: 1240
   input_pixel_format: gray
-  # Output-side ffmpeg options. These settings target newer FFmpeg/NVENC builds.
-  # Increase cq for smaller files; decrease cq for higher quality.
+  # Output-side ffmpeg options used by the older acquisition workflow.
   ffmpeg_output_options:
     c:v: h264_nvenc
-    preset: p4
-    rc: vbr
-    cq: 30
-    b:v: "0"
-    pix_fmt: yuv420p
+    profile:v: high
+    preset: slow
   segment_seconds: 3600
   output_extension: mp4
   pipe_wait_timeout_s: 60
