@@ -13,7 +13,7 @@ Different modalities capture the same temporal reference in different ways:
 - Video: one hardware-triggered frame per sync pulse.
 - Avisoft audio: the sync pulse train is embedded in the least significant bit of the WAV samples.
 - Intan: the sync pulse train is recorded on a digital input channel.
-- pyPhotometry: the sync pulse train is recorded on a digital input channel in the `.ppd` file.
+- pyPhotometry: the same sync pulse train can be recorded on a digital input channel in the `.ppd` file. This is a conceptual extension; pyPhotometry validation is not implemented in this repository yet.
 
 The acquisition layer is responsible for generating and recording the sync reference. The analysis layer is responsible for validating the captured reference and mapping modality-specific samples or frames to session time.
 
@@ -27,7 +27,7 @@ For video, the expected invariant is:
 total_video_frames == total_session_pulses
 ```
 
-For continuous sampled modalities such as audio, Intan, and photometry, validation extracts pulse edges and builds a timing lookup table with this schema:
+For continuous sampled modalities implemented here, such as audio and Intan, validation extracts pulse edges and builds a timing lookup table with this schema:
 
 ```text
 rising_sample

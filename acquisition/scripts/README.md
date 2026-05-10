@@ -1,6 +1,6 @@
 # Acquisition Scripts
 
-Acquisition helper scripts will live here.
+This folder contains acquisition helper scripts.
 
 `run_acquisition.py` launches the Bonsai acquisition workflow and starts ffmpeg processes that encode raw frames from Bonsai named pipes.
 
