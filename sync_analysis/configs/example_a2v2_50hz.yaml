@@ -1,0 +1,42 @@
+# Example analysis-side configuration for a 50 Hz session with two video
+# streams and two audio channels. Both audio channels contain the embedded
+# sync pulse train.
+
+config:
+  experiment_code: example_a2v2_50hz
+  rig: example
+
+  session:
+    sync_rate_hz: 50
+
+  audio:
+    audio_base_dir: raw_audio
+    audio_file_sr: 250000
+    channels:
+      - channel_id: low
+        channel_label: low
+        contains_sync_signal: true
+        sample_channel: 0
+        sync_detection:
+          pulse_width_tolerance: 0.01
+          infer_missing_pulses: true
+          # 60 seconds at 250 kHz. Set to null to read each file at once.
+          chunk_size_samples: 15000000
+      - channel_id: high
+        channel_label: high
+        contains_sync_signal: true
+        sample_channel: 0
+        sync_detection:
+          pulse_width_tolerance: 0.01
+          infer_missing_pulses: true
+          # 60 seconds at 250 kHz. Set to null to read each file at once.
+          chunk_size_samples: 15000000
+
+  video:
+    video_base_dir: raw_video
+    video_file_sr: 50
+    channels:
+      - channel_id: cam0
+        channel_label: cam0
+      - channel_id: cam1
+        channel_label: cam1

@@ -43,9 +43,14 @@ Run validation from `sync_analysis/`:
 ```bash
 python scripts/validate_session.py \
   -s /path/to/session \
-  -c configs/example_session_01_50hz.yaml \
+  -c configs/example_a1v1i_50hz.yaml \
   --log-file /path/to/session/logs/validate_session.log
 ```
+
+Example configs are provided for common layouts:
+
+- `configs/example_a1v1i_50hz.yaml`: one audio channel, one video stream, and one Intan digital input sync channel.
+- `configs/example_a2v2_50hz.yaml`: two audio channels and two video streams, with embedded sync in both audio channels.
 
 Validation writes a `sync/` folder into the session. The key outputs are:
 

@@ -7,7 +7,7 @@ session:
 paths:
   data_dir: D:/videos/test
   bonsai_exe: C:/Users/banerjeelab/AppData/Local/Bonsai/Bonsai.exe
-  # This v1 config expects a Bonsai workflow with one camera box.
+  # This v2 config expects a Bonsai workflow with two camera boxes.
   bonsai_workflow: acquisition/bonsai/workflows/triggered_video_writer_v2.bonsai
 
 video:

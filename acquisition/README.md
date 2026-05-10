@@ -13,7 +13,12 @@ conda env create --prefix $HOME/.conda/envs/multimodal-sync-acquisition -f acqui
 conda activate $HOME/.conda/envs/multimodal-sync-acquisition
 ```
 
-The default acquisition environment installs Python 3.12 and FFmpeg from conda-forge. A legacy FFmpeg 4.2.2 environment is also provided in `acquisition/envs/acquisition_legacy_ffmpeg422.yaml`. In particular, the ffmpeg build, NVIDIA driver, and `h264_nvenc` encoder options need to work together. If video acquisition or encoding fails, consider testing a different NVIDIA driver, FFmpeg version, or encoder setting.
+The default acquisition environment installs Python 3.12 and FFmpeg from conda-forge. A legacy FFmpeg 4.2.2 environment is also provided in `acquisition/envs/acquisition_legacy_ffmpeg422.yaml`. The FFmpeg build, NVIDIA driver, GPU hardware, and `h264_nvenc` encoder options need to work together, so each acquisition computer should be tested with a short representative recording before long sessions.
+
+Two tested examples are included as starting points:
+
+- GeForce RTX 3060, NVIDIA driver 581.57, conda-forge FFmpeg 8.1.1, and the modern config.
+- Quadro RTX 4000, NVIDIA driver 516.94, default-channel FFmpeg 4.2.2, and the legacy config.
 
 Video encoder options are configured in the acquisition YAML under `video.ffmpeg_output_options`. This block is passed through to ffmpeg as output-side options, so different rigs can use the encoder settings appropriate for their FFmpeg version, GPU, driver, and recording requirements without changing the Python wrapper.
 

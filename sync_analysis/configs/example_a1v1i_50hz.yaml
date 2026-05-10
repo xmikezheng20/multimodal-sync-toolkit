@@ -2,7 +2,7 @@
 # This file describes what a recorded session is expected to contain.
 
 config:
-  experiment_code: example_session_01_50hz
+  experiment_code: example_a1v1i_50hz
   rig: example
 
   session:
@@ -43,4 +43,3 @@ config:
           infer_missing_pulses: false
           # Intan digital input files are usually manageable as one array.
           chunk_size_samples: null
-
