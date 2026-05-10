@@ -13,9 +13,6 @@ video:
   ffmpeg_output_options:
     c:v: h264_nvenc
     preset: p4
-    rc: vbr
-    cq: 30
-    b:v: "0"
     pix_fmt: yuv420p
 ```
 
