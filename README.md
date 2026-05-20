@@ -6,7 +6,8 @@ A modular toolkit for synchronized multimodal data acquisition and session-time 
 
 This repository accompanies the protocol:
 
-Xiaoyue Mike Zheng, Martin Davis, Arkarup Banerjee. A modular toolkit for synchronized multimodal data acquisition in systems neuroscience. protocols.io. Final public link pending.
+Xiaoyue Mike Zheng, Martin Davis 2026. A modular toolkit for synchronized multimodal data acquisition in systems neuroscience. **protocols.io**
+https://dx.doi.org/10.17504/protocols.io.8epv5yqo4l1b/v1
 
 Refer to the protocol for the synchronization approach, hardware setup, acquisition workflow, and detailed implementation steps.
 
